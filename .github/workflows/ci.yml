@@ -1,0 +1,24 @@
+on: push
+jobs:
+  test:
+    strategy:
+      matrix:
+        ghc: ["9.4.2", "9.2.4"]
+      fail-fast: false
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: setup ghcup
+        run: Set-ExecutionPolicy Bypass -Scope Process -Force;[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;Invoke-Command -ScriptBlock ([ScriptBlock]::Create((Invoke-WebRequest https://www.haskell.org/ghcup/sh/bootstrap-haskell.ps1 -UseBasicParsing))) -ArgumentList $false,$true,$true,$false,$false,$false,$false,"C:\"
+      - name: Select GHC and Cabal
+        run: |
+          ghcup install ghc --set ${{ matrix.ghc }}
+          ghcup install cabal --set 3.8.1.0
+      - uses: actions/checkout@v3
+      - name: run the test
+        run: |
+          cabal --version
+          cabal update
+          cabal v2-build -v3 --ghc-options="-v3" script.hs
