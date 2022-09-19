@@ -21,4 +21,4 @@ jobs:
         run: |
           cabal --version
           cabal update
-          cabal v2-build -v3 --ghc-options="-v3" script.hs
+          cabal v2-run -v3 --ghc-options="-v3" script.hs
